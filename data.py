@@ -11,7 +11,7 @@ import sys
 import torch
 
 import torch.utils.data as data
-from utils import loadpklz, savepklz
+from verse.analysis.NeuReach.utils import loadpklz, savepklz
 
 def mute():
     sys.stdout = open(os.devnull, 'w')
@@ -56,8 +56,8 @@ class DiscriData(data.Dataset):
 
                     for (idx_t0, idx_tj, sampled_t) in zip(idx_ts_0, idx_ts_j, sampled_ts):
                         self.data.append([self.X0s[i], sampled_t, traces[0, idx_t0, 1:], traces[j+1, idx_tj, 1:]])
-            if not use_precomputed_data:
-                savepklz([self.traces, self.data], data_file)
+            # if not use_precomputed_data:
+            #     savepklz([self.traces, self.data], data_file)
 
     def __len__(self):
         return len(self.data)
@@ -73,13 +73,16 @@ class DiscriData(data.Dataset):
             torch.from_numpy(np.array(ref).astype('float32')).view(-1),\
             torch.from_numpy(np.array(xt).astype('float32')).view(-1)
 
-def get_dataloader(config, args):
+def get_dataloader(
+    config, N_X0, N_x0, N_t, data_file_train, batch_size,
+    num_test, data_file_eval
+):
     train_loader = torch.utils.data.DataLoader(
-        DiscriData(config, args.N_X0, args.N_x0, args.N_t, data_file=args.data_file_train), batch_size=args.batch_size, shuffle=True,
+        DiscriData(config, N_X0, N_x0, N_t, data_file=data_file_train), batch_size=batch_size, shuffle=True,
         num_workers=20, pin_memory=True)
 
     val_loader = torch.utils.data.DataLoader(
-        DiscriData(config, args.num_test, data_file=args.data_file_eval), batch_size=args.batch_size, shuffle=True,
+        DiscriData(config, num_test, data_file=data_file_eval), batch_size=batch_size, shuffle=True,
         num_workers=20, pin_memory=True)
 
     return train_loader, val_loader
