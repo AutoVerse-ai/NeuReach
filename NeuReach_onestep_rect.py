@@ -258,7 +258,7 @@ class SysConfig:
         return [mean, std]
 
 
-def postCont(
+def calculate_bloated_tube_NeuReach(
     mode, init, time_bound, time_step, sim_func, track_map = None, params = {}
 ):
     print(init)
